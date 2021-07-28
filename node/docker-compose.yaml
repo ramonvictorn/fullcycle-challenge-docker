@@ -1,0 +1,44 @@
+version: "3"
+
+services: 
+    nginx:
+        build:
+            context: .
+            dockerfile: Dockerfile.nginx
+        image: 031399/nginx:prod
+        container_name: nginx
+        networks: 
+            - nodenet
+        ports: 
+            - 8080:80
+        depends_on: 
+            - api
+
+    api:
+        build:
+            context: .
+            dockerfile: Dockerfile.node
+        image: 031399/node:prod
+        container_name: nodeapi
+        networks: 
+            - nodenet
+        depends_on: 
+            - db
+
+    db:
+        build:
+            context: .
+            dockerfile: Dockerfile.mysql
+        image: 031399/mysql:prod
+        container_name: db
+        restart: always
+        tty: true
+        environment: 
+            - MYSQL_DATABASE=nodedb
+            - MYSQL_ROOT_PASSWORD=root
+        networks: 
+            - nodenet
+
+networks: 
+    nodenet:
+        driver: "bridge"
